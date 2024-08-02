@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ ! -f ".env" ]]; then
+  cp .env.example .env
+fi
+
+set -o allexport
+source .env set +o allexport
+
+AIRFLOW_CFG_FILE_BASE=.docker/airflow/airflow.cfg.base
+AIRFLOW_CFG_FILE_FINAL=.docker/airflow/airflow.cfg
+
+
+cp -f ${AIRFLOW_CFG_FILE_BASE} ${AIRFLOW_CFG_FILE_FINAL}
+
+if [[ ! -z "${SENTRY_DSN}" ]]; then
+  __SENTRY_CONFIG='\n[sentry]
+  \nsentry_on = True
+  \nsentry_dsn = '${SENTRY_DSN}
+
+  echo -e ${__SENTRY_CONFIG} >> ${AIRFLOW_CFG_FILE_FINAL}
+fi
